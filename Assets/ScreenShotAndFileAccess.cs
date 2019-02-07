@@ -65,6 +65,46 @@ public class ScreenShotAndFileAccess : MonoBehaviour {
 		}
 	}
 	
+	public void OnClickLoadAndSetTextureButton() {
+		string filePathAndName = Application.persistentDataPath + "/" + SaveFileName;
+  
+		// https://qiita.com/r-ngtm/items/6cff25643a1a6ba82a6c
+		// ここ参考にした
+		//ファイルを開く
+		System.IO.FileStream fs = new System.IO.FileStream(
+		    filePathAndName,
+		    System.IO.FileMode.Open,
+		    System.IO.FileAccess.Read
+		);
+
+		//ファイルを読み込むバイト型配列を作成する
+		byte[] bs = new byte[fs.Length];
+
+		//ファイルの内容をすべて読み込む
+		fs.Read(bs, 0, bs.Length);
+
+		//閉じる
+		fs.Close();
+
+		int pos = 16; // 16バイトから開始
+		int width = 0;
+		for (int i = 0; i < 4; i++) {
+			width = width * 256 + bs[pos++];
+		}
+		
+		int height = 0;
+		for (int i = 0; i < 4; i++) {
+			height = height * 256 + bs[pos++];
+		}
+		
+		TakeTexture = new Texture2D(width, height);
+		TakeTexture.LoadImage(bs);
+
+
+		Sprite sprite = Sprite.Create(TakeTexture, new Rect(0, 0, width, height), Vector2.zero);
+		TestImage.sprite = sprite;
+	}
+	
 	private void UpdateDebugText(string text) {
 		DebugText.text += text + "\n";
 	}
